@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#ff314859"
+    android:orientation="vertical" >
+
+
+
+
+    <TextView
+        android:id="@+id/url"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:autoLink="web"
+        android:background="#ff25567b"
+        android:linksClickable="true"
+        android:text="URL"
+        android:textColor="#ffffffff"
+        android:textSize="14dp" />
+
+    <Button
+        android:id="@+id/br"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/url"
+        android:layout_margin="10px"
+        android:text="Launch browser"
+        android:textSize="10dp" />
+
+    <EditText
+        android:id="@+id/verifier"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/button"
+        android:layout_margin="10px"
+        android:text="verifier"
+        android:textSize="10dp" />
+
+
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:layout_margin="10px"
+        android:text="Continue"
+        android:textSize="10dp" />
+
+</RelativeLayout>
