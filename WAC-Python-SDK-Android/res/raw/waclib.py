@@ -39,38 +39,8 @@ __version__  = '1.0'
 
 class WACOAuth():
     """
-    Version 1.0
-
-    The BlueVia base class. All other BlueVia classes are inherited from this class BlueVia. 
-    
-    Mainly Stores consumer and accessToken, provides the generic _signAndSend(...) a debug() method
- 
-    HOWTO USE
-    =========
-    
-    oAuth routines 
-    --------------
-    
-        >>> o = bluevia.BlueViaOauth('<key>', '<secret>')
-        >>> o.fetch_request_token()
-    
-    Returns the oAuth URL for user authorization 
-    
-    Successful authorization returns an oAuth verifier
-    
-        >>> o.fetch_accessToken("<verifier>")
-        >>> o.saveAccessToken("newtok.pkl")
-
-    Payment routines
-    ----------------
-
-        >>> p = bluevia.BlueViaPayment('<key>', '<secret>')
-        >>> p.fetch_request_token(<amount>, <currency>, <serviceId>, <serviceName>)
-        >>> p.fetch_accessToken(<verifier>)
-        >>> p.savePaymentInfo("payment.pkl") # optional, token valid for 48 h
-        >>> p.loadPaymentInfo("payment.pkl") # optional
-        >>> p.issuePayment()
-        >>> p.checkPayment(<transactionId>)
+    Version: 1.0
+    OAuth Support for WAC SDK interaction
     """
 
     consumer = None
@@ -81,15 +51,13 @@ class WACOAuth():
     http = httplib2.Http()
 
     """
-    This class provides the methods for the oAuth Dance.
+    Methods for the oAuth Dance.
     It supports Out Of Band authorization as defined in oAuth 1.0a 
     """ 
     def __init__(self, consumerKey, consumerSecret,realm=None):
         """
-        Initialize the BlueViaOauth object
-        
-        @param consumerKey: (string):     Key of the Consumer Credentials
-        @param consumerSecret: (string):  Secret of the Consumer Credentials        
+        @param consumerKey: (string):     Key of the Consumer 
+        @param consumerSecret: (string):  Secret of the Consumer        
         """
         
         self.realm = realm
@@ -98,17 +66,15 @@ class WACOAuth():
     def _signAndSend(self, requestUrl, method, token, parameters={}, body="", \
                      extraHeaders={}, is_form_encoded = False):
         """
-        Generic method to call an oAuth authorized API in BlueVia including oAuth signature.
+        Generic method to call an oAuth authorized API including oAuth signature.
         
         @param requestUrl: (string):       The BlueVia URL
         @param method: (string):           HTTP method, "GET" or "POST"
         @param token: (oauth.Token):       Usually the Access Token. During oAuth Dance None or Request Token
-
         @param parameters: (dict):         Necessary call paramters, e.g. version, alt. Default: None
         @param body: (string):             Body of the HTTP call. Default: ""
         @param extraHeaders: (dict):       Some calls need extra headers, e.g. {"Content-Type":wac_constants.oAuthAccept}. Default: None
         @param is_form_encoded: (boolean): If True parameters are send as form encoded HTTP body. DEFAULT: False
-        
         @return: (tuple):                  (HTTP response, HTTP response data)
         """
         
@@ -187,7 +153,6 @@ class WACOAuth():
     def set_debug(self, dbgFlag):
         """
         Set or unset the debug flag
-        
         @param dbgFlag: (boolean): If True debug information will be printed to stdout
         """
         
@@ -197,7 +162,6 @@ class WACOAuth():
     def _debug(self, requestUrl, query, headers, body, token, req):
         """
         Prints aut anything relevant for oAuth debugging: URL, method, body, headers, signature base string, ...
-
         @note: Internal method
         """
 
@@ -221,10 +185,9 @@ class WACOAuth():
 
     def fetch_request_token(self, parameters, extraHeaders, requestTokenUrl=None, authorizationUrl=None):
         """
-        First call of the oAuth Dance. Provide the Consumer Credential and request the Request Token
+        Request the Request Token for the OAuth Dance
         
         @param callback: (string): The callback URL or "oob". Default: "oob"
-        
         @return: (tuple):           (HTTP status, token key, authorization URL). HTTP status == "200" for success
         """
         assert type(requestTokenUrl) is StringType and requestTokenUrl!= "", "'requestTokenUrl' must be a non empty string"
@@ -246,16 +209,16 @@ class WACOAuth():
     
     def fetch_wac_request_token(self, scope="", mcc="", mnc="", callback=None, requestTokenUrl=None, authorizationUrl=None):
         """
-        First call of the Payment oAuth Dance. Provide the Consumer Credential and request the one time Request Token
-        (Override of BlueViaOauth fetch_request_token method)
+        First call of the OAuth dance for WAC request token
 
-        @param amount: (string):      Price in the form 125 for 1.25
-        @param currency: (string):    Currency, e.g. "EUR", "GBP"
-        @param serviceId: (string):   Product identifier provided by our Mobile Payments Partner (sandbox: free choice)
-        @param serviceName: (string): Product name as registered at our Mobile Payments Partner (sandbox: free choice)
-        @param callback: (string):    The callback URL or "oob". Default: "oob"
+        @param scope: (string):      Scope in the WAC Form
+        @param mcc: (string):      MCC
+        @param mnc: (string):      MNC
+        @param callback: (string):    The callback URL to receive verifier at
+        @param requestTokenURL: (string):    URL for the request Token first call on WAC
+        @param authorizationURL: (string):   URL for authorization redirection
 
-        @return: (tuple):             (HTTP status, authorization URL). HTTP status == "200" for success
+        @return: (tuple):             (HTTP status, token_key, token_secret, authorization URL). HTTP status == "200" for success
         """
         assert type(scope) is StringType and scope!= "", "'scope' must be a non empty string"
         assert type(mcc) is StringType and mcc!= "", "'mcc' must be a non empty string"
@@ -276,9 +239,14 @@ class WACOAuth():
 
     def fetch_accessToken(self, verifier, request_token, request_token_secret, mcc, mnc,  accessTokenUrl=None):
         """
-        The final step of the oAuth Dance. Exchange the Request Token with the Access Token
+        The final step of the oAuth Dance. Exchange the Request Token for the Access Token after getting the verifier
         
         @param verifier: (string): The oAuth verifier of the successful user authorization
+        @param request_token: (string): Request Token key
+        @param request_token_secret: (string): Request Token secret
+        @param mcc: (string): MCC
+        @param mnc: (string): MNC
+        @param accessTokenUrl: (string): Access token URL on WAC service
         
         @return: (string):         HTTP status == "200" for success
         """
@@ -315,12 +283,14 @@ class WACOneAPIPayment(WACOAuth):
 
     def __init__(self, consumerKey, consumerSecret, realm = "", version="v1",mcc=None,mnc=None):
         """
-        Initialize the BlueViaPayment object
+        Initialize the WAC OneAPI Payment object
 
-        @param consumerKey: (string):     Key of the Consumer Credentials
-        @param consumerSecret: (string):  Secret of the Consumer Credentials
-        @param realm: (string):   Realm string; Default: "BlueVia"
-        @param version: (string): Defauls "v1"
+        @param consumerKey: (string):     Key of the Consumer 
+        @param consumerSecret: (string):  Secret of the Consumer 
+        @param realm: (string):   Realm string; Defaults: "BlueVia"
+        @param version: (string): Defaults "v1"
+        @param mcc: (string): MCC. Defaults "None"
+        @param mnc: (string): MNC. Defaults "None"
         """
         
         WACOAuth.__init__(self, consumerKey, consumerSecret, realm="")
@@ -331,16 +301,15 @@ class WACOneAPIPayment(WACOAuth):
 
     def fetch_payment_request_token(self, productId="", mcc=None,mnc=None, callback=None):
         """
-        First call of the Payment oAuth Dance. Provide the Consumer Credential and request the one time Request Token
-        (Override of BlueViaOauth fetch_request_token method)
+        First call of the oAuth Dance to get a token valid for Payment.
+        Payment API requires POST scope
 
-        @param amount: (string):      Price in the form 125 for 1.25
-        @param currency: (string):    Currency, e.g. "EUR", "GBP"
-        @param serviceId: (string):   Product identifier provided by our Mobile Payments Partner (sandbox: free choice)
-        @param serviceName: (string): Product name as registered at our Mobile Payments Partner (sandbox: free choice)
+        @param productId: (string):      Price in the form 125 for 1.25
+        @param mcc: (string): MCC. Defaults "None"
+        @param mnc: (string): MNC. Defaults "None"
         @param callback: (string):    The callback URL or "oob". Default: "oob"
 
-        @return: (tuple):             (HTTP status, authorization URL). HTTP status == "200" for success
+        @return: (tuple):             (HTTP status, token_key, token_secret, authorization URL). HTTP status == "200" for success
         """
         assert type(productId) is StringType and productId!= "", "'productId' must be a non empty string"
         if mcc != None:
@@ -354,12 +323,12 @@ class WACOneAPIPayment(WACOAuth):
 
     def fetch_information_request_token(self, callback=None):
         """
-        First call of the Payment oAuth Dance. Provide the Consumer Credential and request the one time Request Token
-        (Override of BlueViaOauth fetch_request_token method)
+        First call of the oAuth Dance to get a token valid to get information on payments.
+        Scope requires GET
 
         @param callback: (string):    The callback URL or "oob". Default: "oob"
 
-        @return: (tuple):             (HTTP status, authorization URL). HTTP status == "200" for success
+        @return: (tuple):             (HTTP status, token_key, token_secret, authorization URL). HTTP status == "200" for success
         """
         scope=wac_constants.oAuthScopeCheck     
         return self.fetch_wac_request_token(scope, self.mcc, self.mnc, callback, wac_constants.requestTokenUrl, wac_constants.authorizationUrl)
@@ -368,29 +337,14 @@ class WACOneAPIPayment(WACOAuth):
         """
         Discover operator API
 
-       URL: http://api.wacapps.net/discovery/operator/{application-id}/{api-name}/
+        URL: http://api.wacapps.net/discovery/operator/{application-id}/{api-name}/
 
-        Accept: application/json
+        @param appId: (string):    WAC Application ID
+        @param apiName: (string):    API name
+        @param mcc: (string):    MCC
+        @param mnc: (string):    MNC
 
-        Requires Authentication: false
-
-        Request Headers:
-
-        x-mnc Required Mobile Network Code
-        x-mcc Required Mobile Country Code
-        Other optional operator specific headers that may help WAC gateway to resolve operator resolution.
-        Parameters:
-
-        x-mnc Optional Mobile Network Code
-        x-mcc Optional Mobile Country Code
-        NOTE- If both headers and request parameters are presented , HTTP header values will be used to identify the operator.
-        application-id : Required. Identifier of the application. It is issued by DWP as part of application registration.
-        api-name: Optional. Enumerated name of WAC network API. Currently support followings
-        payment
-        authorization
-        query
-        NOTE: MNC or MCC information can be passed as either HTTP headers or Query parameters
-        @return: (tuple):             (HTTP status, authorization URL). HTTP status == "200" for success
+        @return: (tuple):             (HTTP status, HTTP Content). HTTP status == "200" for success
         """
         
         assert type(appId) is StringType and appId!= "", "'appId' must be a non empty string"
@@ -427,7 +381,17 @@ class WACOneAPIPayment(WACOAuth):
 
     def query_product(self, appId, username, mcc="",mnc="", productId=""):
         """
-        Query Products for Operator API       
+        QUery Product API
+
+        URL: http://api.wacapps.net/discovery/operator/{application-id}/{api-name}/
+
+        @param appId: (string):    WAC Application ID
+        @param username: (string):    User name
+        @param mcc: (string):    MCC
+        @param mnc: (string):    MNC
+        @param productId: (string):    Product Id
+
+        @return: (tuple):             (HTTP status, HTTP Content). HTTP status == "200" for success
         """
         
         assert type(appId) is StringType and appId!= "", "'appId' must be a non empty string"
@@ -476,6 +440,9 @@ class WACOneAPIPayment(WACOAuth):
     def issue_payment(self, accessTokenKey=None, accessTokenSecret=None, referenceCode=None):   
         """
         Issue the actual payment with details from given by fetch_request_token method
+        @param accessTokenKey: (string):    Access Token for payment
+        @param accessTokenSecret: (string):    Access token secret for payment
+        @param referenceCode: (string):    Payment reference code
 
         @return: (tuple):              (HTTP status, (dict) paymentStatus). HTTP status == "200" for success.          
         """
@@ -520,6 +487,8 @@ class WACOneAPIPayment(WACOAuth):
         Check the Payment status (polling)
         
         @param transactionId: (string): Transaction Id provided by issuePayment method
+        @param accessTokenKey: (string):    Access Token for payment
+        @param accessTokenSecret: (string):    Access token secret for payment
 
         @return: (tuple):              (HTTP status, (dict) paymentStatus). HTTP status == "200" for success.          
         """
@@ -543,7 +512,9 @@ class WACOneAPIPayment(WACOAuth):
 
     def list_transactions(self, accessTokenKey=None, accessTokenSecret=None):   
         """
-        List Transactions
+        List Transactions associated to token
+        @param accessTokenKey: (string):    Access Token for payment
+        @param accessTokenSecret: (string):    Access token secret for payment
 
         @return: (tuple):              (HTTP status, (dict) paymentStatus). HTTP status == "200" for success.          
         """
