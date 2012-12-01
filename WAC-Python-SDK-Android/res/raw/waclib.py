@@ -23,7 +23,14 @@
 #
 
 import oauth2 as oauth
-import httplib2, pickle, os, types, time, urllib, simplejson, uuid
+import httplib2
+import pickle
+import os
+import types
+import time
+import urllib
+import simplejson
+import uuid
 import wac_constants
 from types import *
 from urlparse import parse_qs
@@ -524,7 +531,7 @@ class WACOneAPIPayment(WACOAuth):
         accessToken=oauth.Token.from_string("oauth_token=%s&oauth_token_secret=%s" % (accessTokenKey,accessTokenSecret))
         assert self.accessToken != None, "'accessToken' must not be empty"
              
-        response, content = self._signAndSend(wac_constants.paymentListTransactionUrl, "GET", accessToken, \
-                                              parameters={}, body="", \
-                                              extraHeaders={"x-mnc":self.mnc,"x-mcc":self.mcc,"Accept":wac_constants.oAuthAccept})
+        response, content = self._signAndSend(wac_constants.paymentListTransactionUrl, "GET", accessToken, 
+                parameters={}, body="", 
+                extraHeaders={"x-mnc": self.mnc, "x-mcc": self.mcc, "Accept": wac_constants.oAuthAccept})
         return int(response["status"]), content
