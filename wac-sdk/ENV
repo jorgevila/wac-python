@@ -1,0 +1,3 @@
+adb forward tcp:9999 tcp:4321
+export AP_PORT=9999 
+

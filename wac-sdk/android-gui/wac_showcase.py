@@ -67,12 +67,13 @@ class BuyScreen(Layout):
         FullScreenWrapper2App.close_layout()
         
     def start_authorization(self):
-
+        wacObj.set_debug(True)
         status,key,secret,authUrl=wacObj.fetch_payment_request_token(productId=self.itemId,callback=callback,mcc=self.mcc,mnc=self.mnc)
         self.rtKey=key
         self.rtSecret=secret
         #self.views.web.__setattr__('url',authUrl)
         self.views.url.text=authUrl
+        print authUrl
         
 
 class ProductsScreen(Layout):
@@ -131,6 +132,8 @@ class ProductsScreen(Layout):
 #"application-id":"wac-939c6e89-f548-4811-a21c-84802cb242a8"}}}')
 
         status,json_content = wacObj.query_product(appId=wac_app_id,username=username,mcc=self.mcc,mnc=self.mnc)
+        json_content='{"code":"ok","response":{"product":{"items":[{"item-id":"wac-c116480e-316a-44e7-be76-5fde978b2f59","description":"Discount Matinee","price":"0.01","currency":"EUR","billing-receipt":"You purchased Discount Matinee for EUR .01. plus applicable tax."},{"item-id":"wac-11faf3e6-e440-4daa-824e-62d8ed83723e","description":"General Admission","price":"0.02","currency":"EUR","billing-receipt":"You purchased General Admission for EUR .02. plus applicable tax."}],"application-id":"wac-939c6e89-f548-4811-a21c-84802cb242a8"}}}'
+
         self.json=simplejson.loads(json_content)
         products_json=self.json["response"]["product"]["items"]
         for product in products_json:
@@ -181,6 +184,7 @@ class OpsScreen(Layout):
         #{"name":"LG U+","mcc":"450","mnc":"06"}]}}')
 
         status,json_content = wacObj.discover_operator(wac_app_id)
+        json_content='{"code":"ok","response":{"operators":[{"name":"Kt","mcc":"450","mnc":"08"},{"name":"Telekom DE","mcc":"262","mnc":"01"},{"name":"Movistar ES","mcc":"214","mnc":"07"},{"name":"SK Telecom","mcc":"450","mnc":"05"},{"name":"SMART","mcc":"515","mnc":"03"},{"name":"LG U+","mcc":"450","mnc":"06"}]}}'
         self.json=simplejson.loads(json_content)
         operators=self.json["response"]["operators"]
         for op in operators:
@@ -204,8 +208,8 @@ callback = Config.get(section, 'callback')
 mcc=Config.get(section, 'mcc')
 mnc=Config.get(section, 'mnc')
 username=Config.get(section, 'username')
-msisdn=Config.get(section, 'msisdn')
-password=Config.get(section, 'password')        
+#msisdn=Config.get(section, 'msisdn')
+#password=Config.get(section, 'password')        
         
 wacObj = wac.WACOneAPIPayment(my3leggedConsumer, my3leggedSecret)
 

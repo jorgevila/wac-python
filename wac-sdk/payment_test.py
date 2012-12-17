@@ -13,8 +13,7 @@ callback = Config.get(section, 'callback')
 mcc=Config.get(section, 'mcc')
 mnc=Config.get(section, 'mnc')
 username=Config.get(section, 'username')
-msisdn=Config.get(section, 'msisdn')
-password=Config.get(section, 'password')
+
 
 ### Logging
 
@@ -43,36 +42,35 @@ def next():
 
 print 'Launching...'
 o3 = wac.WACOneAPIPayment(my3leggedConsumer, my3leggedSecret)
+o3.set_debug(True)
 
+#print ' Discover Operator'
 
-print ' Discover Operator'
+#print o3.discover_operator(wac_app_id)
 
-print o3.discover_operator(wac_app_id)
+#next()
 
-next()
+#print ' Query Products'
 
-print ' Query Products'
+#print o3.query_product(appId=wac_app_id,username=username,mcc=mcc,mnc=mnc)
 
-print o3.query_product(appId=wac_app_id,username=username,mcc=mcc,mnc=mnc)
+#next()
 
-next()
+#print ' Query Product %s' % productId
 
-print ' Query Product %s' % productId
+#print o3.query_product(appId=wac_app_id,username=username,mcc=mcc,mnc=mnc,productId=productId)
 
-print o3.query_product(appId=wac_app_id,username=username,mcc=mcc,mnc=mnc,productId=productId)
-
-next()
+#next()
 
 
 print 'Request token...'
-status,key,secret,content=o3.fetch_payment_request_token(productId=productId,callback=callback,mcc=mcc,mnc=mnc)
+status,token,secret,content=o3.fetch_payment_request_token(productId=productId,callback=callback,mcc=mcc,mnc=mnc)
 print "\nSTATUS: %s \n CONTENT: %s" % (status,content)
 assert status == 200
 auth_url_with_token=content
-print "PARAMS from RT:\n token_key=%s \ntoken_secret=%s \n auth_url= %s" % (key,secret,auth_url_with_token)
+print "PARAMS from RT:\n token_key=%s \ntoken_secret=%s \n auth_url= %s" % (token,secret,auth_url_with_token)
 assert status == 200
 
-next()
 #Authorizing token
 
 
@@ -81,29 +79,31 @@ import urllib
 
 mcc_mnc=urllib.urlencode({"x-mnc":mnc,"x-mcc":mcc})
 auth_url_with_token_and_mcc="%s&%s" % (auth_url_with_token,mcc_mnc)
-print auth_url_with_token_and_mcc
+#print auth_url_with_token_and_mcc
 
 next()
 print ".... authorize token.."
 
-urlBV_with_verifier = raw_input('\nPaste URL obtained from authorization flow and press Enter:')
+#urlBV_with_verifier = raw_input('\nPaste URL obtained from authorization flow and press Enter:')
 
-from urlparse import urlparse
-url = urlparse(urlBV_with_verifier)
-params = dict([part.split('=') for part in url[4].split('&')])
-print params
-verifier = params['oauth_verifier']
+#from urlparse import urlparse
+#url = urlparse(urlBV_with_verifier)
+#params = dict([part.split('=') for part in url[4].split('&')])
+#print params
+#verifier = params['oauth_verifier']
+
+verifier = raw_input('\nPaste verifier:')
 
 next()
 
 print "Get Access Token..."
 # When finished copy verifier, e.g 135791
-status,content = o3.fetch_access_token(verifier)
+status,accesstoken,accesssecret,content = o3.fetch_access_token( verifier, token, secret, mcc, mnc, accessTokenUrl=None)
 assert status == 200
 next()
 
 print "\nPayment...\n"
-status,json_content = o3.issue_payment()
+status,json_content = o3.issue_payment(accesstoken,accesssecret)
 print "\nSTATUS: %s \n CONTENT: %s" % (status,json_content)
 assert status == 201
 assert json_content != '' 
@@ -116,6 +116,6 @@ txid=json_object["amountTransaction"]["serverReferenceCode"]
 txId_url=json_object["amountTransaction"]["resourceURL"]
 
 print "\n\nCheck Payment with Payment Access Token\n\n"
-status,json_content = o3.check_payment(txid)
+status,json_content = o3.check_payment(txid,accesstoken,accesssecret)
 print "\nSTATUS: %s \n CONTENT: %s" % (status,json_content)
 assert status == 200

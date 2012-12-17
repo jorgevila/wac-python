@@ -15,8 +15,15 @@ authorizationUrl='https://pro1.api.wacapps.net/1/oauth/authorize'
 paymentUrl="https://pro1.api.wacapps.net/1/payment/acr:Authorization/transactions/amount"
 paymentCheckTransactionUrl   = "https://pro1.api.wacapps.net/1/payment/acr:Authorization/transactions/amount/%s"
 paymentListTransactionUrl   = "https://pro1.api.wacapps.net/1/payment/acr:Authorization/transactions/amount"
-discoveryUrl   = "http://pro1.api.wacapps.net/discovery/operator/%s"
+discoveryUrl   = "https://pro1.api.wacapps.net/discovery/operator/%s"
 queryUrl = "https://pro1.api.wacapps.net/products/%s"
+
+baseStagingUrlHttpsR2 = "https://staging.api.wacapps.net/"
+discoveryUrlR2   = "https://pro1.api.wacapps.net/discovery/operator/%s"
+queryUrlR2 = "https://pro1.api.wacapps.net/products/%s"
+authorizationStagingChargePathR2 = "https://pro1.api.wacapps.net/2/oauth/authorize";
+accessTokenStagingChargePathR2 = "https://pro1.api.wacapps.net/2/oauth/access-token";
+chargePaymentStagingPathR2 = "https://pro1.api.wacapps.net/2/payment/acr:Authorization/transactions/amount";
         
 redirectUriOAuth='https://gateway.wacapps.net/redirect/9dc31536-026d-4c00-adf1-6957d80366da'
 
