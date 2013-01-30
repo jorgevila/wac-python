@@ -2,3 +2,52 @@ wac-python
 ==========
 
 WAC Python SDK
+
+### Dependencies
+
+
+Install setuptools: http://pypi.python.org/pypi/setuptools#cygwin-mac-os-x-linux-other
+
+sh setuptools-0.6c9-py2.6.egg 
+
+Python dependencies:
+
+sudo easy_install mechanize
+sudo easy_install oauth2
+
+
+... and configure the msisdn and pass for the BlueVia connect in the properties file.
+
+it works for:
+-----------
+$ python
+Python 2.6.5 (r265:79063, Apr 16 2010, 13:09:56) 
+[GCC 4.4.3] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import mechanize
+>>> mechanize.__version__
+(0, 2, 5, None, None)
+>>> import oauth2
+>>> oauth2.__version__
+LooseVersion ('1.5.170')
+>>> 
+----------
+
+Beware that you need to use the correct 
+
+my3leggedConsumer=wac-dc4738c1014aff55b719f459c892389ce18139e0
+my3leggedSecret=aa7fafe8b9d16d8d6494faba95d14ec54bdb97e9
+#my3leggedSecret=YWE3ZmFmZThiOWQxNmQ4ZDY0OTRmYWJhOTVkMTRlYzU0YmRiOTdlOQ==
+
+wac_app_id=wac-939c6e89-f548-4811-a21c-84802cb242a8
+productId=wac-11faf3e6-e440-4daa-824e-62d8ed83723e
+
+from the PRODUCTION environment, and that such credentials shall be provisioned in the WAC GW and in the gSDP
+
+Also MSISDN and PASSWORD shall be registered and confirmed in BlueVia Connect
+
+
+Permission to use, copy, modify and distribute this software and its documentation for any purpose and without fee is hereby granted, provided that the above copyright notice appear in all copies[,] [and] that both [that] [the] copyright notice and this permission notice appear in supporting documentation[, and that the name [of] <copyright holder> [or <related entities>] not be used in advertising or publicity pertaining to distribution of the software without specific, written prior permission]. [<copyright holder> makes no representations about the suitability of this software for any purpose. It is provided "as is" without express or implied warranty.]
+
+[DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS[,][.] IN NO EVENT SHALL <copyright holder> BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.]
+
